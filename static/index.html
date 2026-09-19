@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content,viewport-fit=cover">
+  <meta name="theme-color" content="#121113">
+  <title>Session 1 | Glitter</title>
+  <link rel="stylesheet" href="/vendor/xterm.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="shell" aria-labelledby="page-title">
+    <h1 class="visually-hidden" id="page-title">Glitter</h1>
+    <header class="toolbar" aria-label="Terminal controls">
+      <div class="session-heading">
+        <button class="control" id="open-sessions" type="button" aria-label="Open sessions" aria-expanded="false" aria-controls="session-drawer">
+          <!-- SidebarLeftIcon by Hugeicons. -->
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12c0-3.69 0-5.53.81-6.84C3.84 3.5 5.59 3 10 3h4c4.41 0 6.16.5 7.19 2.16C22 6.47 22 8.31 22 12s0 5.53-.81 6.84C20.16 20.5 18.41 21 14 21h-4c-4.41 0-6.16-.5-7.19-2.16C2 17.53 2 15.69 2 12Z"/><path d="M9.5 3v18M5 7h1M5 10h1"/></svg>
+        </button>
+        <div class="title-editor">
+          <button class="active-session-name" id="active-session-name" type="button" aria-label="Rename active session"></button>
+          <form id="title-form" hidden>
+            <label class="visually-hidden" for="title-input">Session title</label>
+            <input id="title-input" name="title" maxlength="48" required>
+          </form>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="control" id="restart" type="button" aria-label="Restart shell">
+          <!-- RefreshIcon by Hugeicons. -->
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2v3.13c0 .3-.36.43-.55.2A9.97 9.97 0 0 0 12 2 10 10 0 1 0 22 12"/></svg>
+        </button>
+        <button class="control add-session" id="add-tab" type="button" aria-label="New terminal session">
+          <!-- Add01Icon by Hugeicons. -->
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M19 12H5"/></svg>
+        </button>
+      </div>
+      <span class="visually-hidden" id="status" role="status"><i></i><span>Connecting</span></span>
+    </header>
+
+    <section class="terminal-panel" aria-label="Terminal sessions">
+      <div id="terminals"></div>
+    </section>
+
+    <section class="settings-page" id="settings-page" aria-labelledby="settings-title" hidden>
+      <header class="settings-header">
+        <button class="control" id="close-settings" type="button" aria-label="Back to terminal">
+          <!-- ArrowLeft02Icon by Hugeicons. -->
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.002H19"/><path d="M11 18.002S5 13.583 5 12.002 11 6.002 11 6.002"/></svg>
+        </button>
+        <div>
+          <h2 id="settings-title">Appearance</h2>
+          <p>Set the colors used by every terminal session.</p>
+        </div>
+      </header>
+      <section class="settings-card" aria-labelledby="font-title">
+        <div>
+          <h3 id="font-title">Terminal font</h3>
+          <p>Choose the font used by every shell session.</p>
+        </div>
+        <span class="settings-label" id="font-picker-label">Font family</span>
+        <div class="font-picker" id="font-picker">
+          <button class="font-picker-trigger" id="font-select" type="button" aria-haspopup="menu" aria-expanded="false" aria-labelledby="font-picker-label font-value">
+            <span id="font-value">JetBrains Mono Nerd Font</span>
+            <!-- ArrowDown01Icon by Hugeicons. -->
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9s-4.419 6-6 6-6-6-6-6"/></svg>
+          </button>
+          <div class="font-options" id="font-options" role="menu" aria-label="Terminal font" hidden>
+            <button type="button" role="menuitemradio" aria-checked="true" data-font="JetBrainsMono Nerd Font">JetBrains Mono Nerd Font</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="Adwaita Mono">Adwaita Mono</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="iA Writer Mono S">iA Writer Mono S</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="Noto Sans Mono">Noto Sans Mono</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="Liberation Mono">Liberation Mono</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="Nimbus Mono PS">Nimbus Mono PS</button>
+            <button type="button" role="menuitemradio" aria-checked="false" data-font="monospace">System monospace</button>
+          </div>
+        </div>
+      </section>
+      <form class="settings-card" id="theme-form">
+        <div>
+          <h3>Theme colors</h3>
+          <p>Glitter reads Omarchy’s active <code>colors.toml</code> for shell colors while keeping the terminal background Mauve. Paste another compatible palette here to override it.</p>
+        </div>
+        <label for="theme-source">Theme TOML</label>
+        <textarea id="theme-source" name="theme" spellcheck="false" required></textarea>
+        <p class="theme-status" id="theme-status" aria-live="polite"></p>
+        <p class="theme-error" id="theme-error" role="alert" hidden></p>
+        <div class="settings-actions">
+          <button type="button" id="use-omarchy-theme">Use Omarchy theme</button>
+          <button class="primary" type="submit">
+            <!-- PaintBrush01Icon by Hugeicons. -->
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.891 20.873-.891.127.127-.891c.194-1.355.29-2.033.591-2.634.301-.601.785-1.085 1.753-2.053L16.983 3.91c.423-.424.635-.635.863-.748a1.55 1.55 0 0 1 1.38 0c.229.113.44.324.864.748.424.424.635.635.748.864a1.55 1.55 0 0 1 0 1.38c-.113.228-.324.44-.748.863L8.578 18.529c-.968.968-1.452 1.452-2.053 1.753-.601.3-1.279.397-2.634.591Z"/><path d="m6 15 3 3m-.5-5.5 3 3"/></svg>
+            Apply theme
+          </button>
+        </div>
+      </form>
+
+    </section>
+  </main>
+
+  <nav class="extra-keys" id="extra-keys" aria-label="Terminal extra keys">
+    <button type="button" data-key="Escape">ESC</button>
+    <button type="button" data-key="Tab">TAB</button>
+    <button type="button" data-modifier="ctrl" aria-pressed="false">CTRL</button>
+    <button type="button" data-modifier="alt" aria-pressed="false">ALT</button>
+    <button type="button" data-modifier="shift" aria-pressed="false">SHIFT</button>
+    <button type="button" data-key="ArrowLeft" aria-label="Left arrow">
+      <!-- ArrowLeft02Icon by Hugeicons. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12.002H19"/><path d="M11 18.002S5 13.583 5 12.002 11 6.002 11 6.002"/></svg>
+    </button>
+    <button type="button" data-key="ArrowUp" aria-label="Up arrow">
+      <!-- ArrowUp02Icon by Hugeicons. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5V19"/><path d="M18 11S13.58 5 12 5s-6 6-6 6"/></svg>
+    </button>
+    <button type="button" data-key="ArrowDown" aria-label="Down arrow">
+      <!-- ArrowDown02Icon by Hugeicons. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18.5V5"/><path d="M6 13s4.42 6 6 6 6-6 6-6"/></svg>
+    </button>
+    <button type="button" data-key="ArrowRight" aria-label="Right arrow">
+      <!-- ArrowRight02Icon by Hugeicons. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.5 12.002H5"/><path d="M13 6.002s6 4.419 6 6-6 6-6 6"/></svg>
+    </button>
+    <button type="button" data-key="Home">HOME</button>
+    <button type="button" data-key="End">END</button>
+    <button type="button" data-key="PageUp">PG↑</button>
+    <button type="button" data-key="PageDown">PG↓</button>
+    <button type="button" data-key="Delete">DEL</button>
+  </nav>
+
+  <dialog class="session-drawer" id="session-drawer" aria-labelledby="drawer-title">
+    <header class="drawer-header">
+      <h2 id="drawer-title">Glitter</h2>
+      <button class="drawer-new-session" id="new-session" type="button" aria-label="New session">
+        <!-- Add01Icon by Hugeicons. -->
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M19 12H5"/></svg>
+      </button>
+    </header>
+    <div class="session-bar">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Terminal sessions" aria-orientation="vertical"></div>
+    </div>
+    <button class="drawer-action" id="open-settings" type="button">
+      <!-- Settings01Icon by Hugeicons. -->
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.32 7.14-.5-.86c-.37-.64-.56-.97-.87-1.1-.32-.12-.68-.02-1.4.18l-1.22.34a2.1 2.1 0 0 1-1.36-.17l-.34-.19a2.1 2.1 0 0 1-.78-.97l-.34-1c-.22-.65-.33-.98-.59-1.17-.26-.2-.61-.2-1.3-.2h-1.12c-.69 0-1.04 0-1.3.2-.26.19-.37.52-.59 1.17l-.33 1a2.1 2.1 0 0 1-.79.97l-.34.19a2.1 2.1 0 0 1-1.36.17l-1.22-.34c-.71-.2-1.07-.3-1.39-.18-.32.13-.5.46-.88 1.1l-.49.86c-.35.61-.52.91-.49 1.24.04.32.27.58.74 1.1l1.03 1.15c.25.32.43.88.43 1.38s-.18 1.06-.43 1.38l-1.03 1.15c-.47.52-.7.78-.74 1.1-.03.33.14.63.49 1.24l.49.86c.38.65.56.97.88 1.1.32.13.68.03 1.39-.18l1.22-.34a2.1 2.1 0 0 1 1.36.17l.34.2c.36.22.63.56.79.96l.33 1c.22.66.33.99.59 1.18.26.19.61.19 1.3.19h1.12c.69 0 1.04 0 1.3-.19.26-.19.37-.52.59-1.18l.34-1c.15-.4.42-.74.78-.96l.34-.2a2.1 2.1 0 0 1 1.36-.17l1.22.34c.72.21 1.08.31 1.4.18.31-.13.5-.45.87-1.1l.5-.86c.35-.61.52-.91.49-1.24-.04-.32-.27-.58-.74-1.1l-1.03-1.15a2.3 2.3 0 0 1-.43-1.38c0-.5.18-1.06.43-1.38l1.03-1.15c.47-.52.7-.78.74-1.1.03-.33-.14-.63-.49-1.24Z"/><path d="M15.52 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"/></svg>
+      <span>Settings</span>
+    </button>
+    <div class="context-menu" id="session-menu" role="group" aria-label="Session actions" hidden>
+      <button type="button" data-action="rename">
+        <!-- Edit02Icon by Hugeicons. -->
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.07 3.89c.75-.81 1.12-1.22 1.52-1.45a3.05 3.05 0 0 1 3.1-.05c.4.23.79.62 1.56 1.4s1.15 1.18 1.37 1.59a3.17 3.17 0 0 1-.05 3.17c-.23.41-.63.79-1.42 1.55l-9.4 9.05c-1.5 1.45-2.25 2.17-3.18 2.54s-1.97.34-4.03.28h-.28c-.62-.02-.94-.03-1.12-.24s-.16-.52-.1-1.16l.02-.35c.14-1.8.21-2.7.56-3.5s.96-1.47 2.17-2.78l9.28-10.05Z"/><path d="m13 4 7 7M14 22h8"/></svg>
+        <span>Rename</span>
+      </button>
+      <button type="button" data-action="clear">
+        <!-- BrushCleaningIcon by Hugeicons. -->
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.25 16l.38 3.02A2.65 2.65 0 0 1 12 22a2.65 2.65 0 0 1-2.63-2.98L9.75 16c.1-.81.15-1.22-.02-1.51C9.51 14.12 9.1 14 7.98 14H7.83c-1.72 0-2.58 0-3.15-.5C4 12.92 4 12.06 4 10.17V10h16v.17c0 1.89 0 2.75-.68 3.33-.57.5-1.43.5-3.15.5h-.15c-1.12 0-1.53.12-1.75.49-.17.29-.12.7-.02 1.51Z"/><path d="M4 10V5.51c0-1.91.69-3.21 2.6-3.48C7.03 1.97 7.85 1.91 8.34 2.34l.25.25c.66.66 1 1 1.41 1s.75-.34 1.41-1C11.99 2 12.42 2 14 2c2.83 0 4.24 0 5.12.88S20 5.17 20 8v2"/></svg>
+        <span>Clear</span>
+      </button>
+      <button class="danger" type="button" data-action="close">
+        <!-- Delete02Icon by Hugeicons. -->
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m19.5 5.5-.62 10.03c-.16 2.56-.24 3.84-.88 4.76C17.36 21.21 16.08 22 12 22s-5.37-.79-6.02-1.72c-.64-.92-.72-2.2-.88-4.77L4.5 5.5"/><path d="M3 5.5h18M16.06 5.5l-.69-1.41C14.92 3.16 14.69 2.69 14.3 2.4 13.87 2.07 13.07 2 12.03 2c-1.06 0-1.6.07-2.03.23-.4.15-.9 1-1.34 1.94L8.05 5.5M9.5 16.5v-6M14.5 16.5v-6"/></svg>
+        <span>Close</span>
+      </button>
+    </div>
+    <form class="rename-panel" id="rename-form" hidden>
+      <label for="rename-input">Session name</label>
+      <input id="rename-input" name="name" maxlength="48" required>
+      <div class="rename-actions">
+        <button type="button" id="cancel-rename">Cancel</button>
+        <button class="primary" type="submit">Rename</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
