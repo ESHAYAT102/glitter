@@ -422,10 +422,10 @@
 
   #terminals, .terminal-host { min-block-size: 0; block-size: 100%; }
   #terminals { overflow: hidden; }
-  .terminal-host { padding: 1rem; }
-  .terminal-host .terminal, .terminal-host .xterm-viewport { block-size: 100%; }
-  .xterm { padding: 0; }
-  .xterm .xterm-viewport { scrollbar-color: var(--mauve-8) transparent; scrollbar-width: thin; }
+  .terminal-host { padding: 0; }
+  .terminal-host .terminal { block-size: 100%; }
+  .xterm { padding: 1rem 1rem 2rem; }
+  .xterm .xterm-viewport { background-color: var(--mauve-3) !important; scrollbar-color: var(--mauve-8) transparent; scrollbar-width: thin; }
 
   .toast {
     position: fixed;
@@ -462,7 +462,8 @@
     .control.add-session { inline-size: 5.5rem; }
     .control.add-session svg { inline-size: 1.25rem; block-size: 1.25rem; }
     .terminal-panel { border-radius: 1rem 1rem 0 0; }
-    .terminal-host { padding: 0.75rem; }
+    .terminal-host { padding: 0; }
+    .xterm { padding: 0.75rem 0.75rem 1.5rem; }
     .settings-page { padding: 1rem; }
     .settings-card { padding: 1rem; }
     .settings-card textarea { min-block-size: 55dvh; }

@@ -30,6 +30,20 @@ func TestOmarchyTheme(t *testing.T) {
 	}
 }
 
+func TestTerminalEnvironmentDoesNotImpersonateHost(t *testing.T) {
+	t.Setenv("TERMINAL", "ghostty")
+	t.Setenv("GHOSTTY_RESOURCES_DIR", "/tmp/ghostty")
+
+	env := terminalEnv()
+	joined := strings.Join(env, "\n")
+	if strings.Contains(joined, "TERMINAL=ghostty") || strings.Contains(joined, "GHOSTTY_RESOURCES_DIR=") {
+		t.Fatal("host terminal identity leaked into shell")
+	}
+	if !strings.Contains(joined, "TERMINAL=glitter") || !strings.Contains(joined, "TERM_PROGRAM=Glitter") {
+		t.Fatal("Glitter terminal identity is missing")
+	}
+}
+
 func TestTerminalRunsShell(t *testing.T) {
 	t.Setenv("SHELL", "/bin/sh")
 	server := httptest.NewServer(http.HandlerFunc(terminal))

@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -163,7 +164,7 @@ func startShell(id, client string) (*shellSession, error) {
 		shell = "/bin/sh"
 	}
 	cmd := exec.Command(shell, "-l")
-	cmd.Env = append(os.Environ(), "TERM=xterm-256color", "COLORTERM=truecolor")
+	cmd.Env = terminalEnv()
 	if home, err := os.UserHomeDir(); err == nil {
 		cmd.Dir = home
 	}
@@ -174,6 +175,21 @@ func startShell(id, client string) (*shellSession, error) {
 	sessionLog := appLog.With("session", nextSessionID.Add(1), "shell", filepath.Base(shell), "client", client)
 	sessionLog.Info("Shell session started")
 	return &shellSession{id: id, ptmx: ptmx, cmd: cmd, log: sessionLog, started: time.Now()}, nil
+}
+
+func terminalEnv() []string {
+	blocked := map[string]bool{
+		"TERM": true, "COLORTERM": true, "TERMINAL": true, "TERM_PROGRAM": true, "TERM_PROGRAM_VERSION": true,
+		"KITTY_WINDOW_ID": true, "KONSOLE_VERSION": true, "WEZTERM_EXECUTABLE": true, "GHOSTTY_RESOURCES_DIR": true,
+	}
+	env := make([]string, 0, len(os.Environ())+5)
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if !blocked[key] {
+			env = append(env, entry)
+		}
+	}
+	return append(env, "TERM=xterm-256color", "COLORTERM=truecolor", "TERMINAL=glitter", "TERM_PROGRAM=Glitter", "TERM_PROGRAM_VERSION=1")
 }
 
 func (session *shellSession) attach(conn *websocket.Conn) {
