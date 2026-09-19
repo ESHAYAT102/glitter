@@ -1,5 +1,6 @@
 import { Terminal } from "/vendor/xterm.mjs";
 import { FitAddon } from "/vendor/addon-fit.mjs";
+import { ImageAddon } from "/vendor/addon-image.mjs";
 import { parseTheme } from "/theme.mjs";
 import { keySequence, modifiedInput } from "/keys.mjs";
 import { shouldDismissDrawer } from "/gesture.mjs";
@@ -303,6 +304,7 @@ function createSession(focus = true, restored) {
   const terminal = new Terminal(terminalOptions);
   const fit = new FitAddon();
   terminal.loadAddon(fit);
+  terminal.loadAddon(new ImageAddon());
   terminal.open(panel);
   const session = {
     id, key, number, name, tab, panel, terminal, fit,
